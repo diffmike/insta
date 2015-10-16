@@ -73,7 +73,7 @@ class ReceiveController extends Controller
     {
         foreach($photos as $photo) {
             $photo->splited_comments = $this->splitComments($this->instagram->getMediaComments($photo->id));
-            $photo->splited_likes = $this->splitLikes($this->instagram->getMedia($photo->id));
+            $photo->splited_likes = $this->splitLikes($this->instagram->getMedia($photo->id), $photo);
         }
         return $photos;
     }
@@ -82,13 +82,14 @@ class ReceiveController extends Controller
      * Split likes
      *
      * @param $photo
+     * @param $storedPhoto
      * @return mixed
      */
-    private function splitLikes($photo)
+    private function splitLikes($photo, $storedPhoto)
     {
         $photo = json_decode(json_encode($photo), true);
         $created = (int)array_get($photo, 'data.created_time');
-        $likesCount = (int)array_get($photo, 'data.likes.count');
+        $likesCount = (int)array_get($storedPhoto, 'likes');
         $result = [];
         $diff = ceil((time() - $created) / 3600 / 24);
         for($i = $created; $i <= time(); $i += 24 * 60 * 60) {
